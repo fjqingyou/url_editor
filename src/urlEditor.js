@@ -1,3 +1,16 @@
+// ==UserScript==
+// @name         Url-Editor
+// @namespace    https://greasyfork.org/users/390742
+// @updateURL    https://github.com/fjqingyou/url_editor/raw/master/src/urlEditor.js
+// @version      1.0.4
+// @include      *
+// @description  编辑 url 用
+// @author       fjqingyou
+// @match        http://*/*
+// @grant        none
+// @run-at       document-start
+// ==/UserScript==
+
 /**
  * Url 编辑模块
  */
@@ -9,7 +22,7 @@ UrlEditor = {};
  * @param {*} variable 
  * @returns 取得目标参数的值，不存在时返回 null
  */
-UrlEditor.getUrlParame = function(url, variable){
+UrlEditor.getUrlParam = function(url, variable){
     var result = null;
     var nIndexQuestionMark = url.indexOf('?');
     if(nIndexQuestionMark){//如果存在参数
@@ -33,17 +46,18 @@ UrlEditor.getUrlParame = function(url, variable){
  * @param {*} value 
  * @returns 返回变更后的 url
  */
-UrlEditor.setUrlParame = function(url, name, value){
+UrlEditor.setUrlParam = function(url, name, value){
     var result;
     
     var nIndexQuestionMark = url.indexOf('?');
     if(!nIndexQuestionMark){//如果目标url上面还未有这个属性
-        result += '?' + name + '=' + value;
+        result = url + '?' + name + '=' + value;
     }else{//如果url上面已经存在了这个参数
         var nIndex = nIndexQuestionMark + 1;
         result = url.substring(0, nIndex);
         var query = url.substring(nIndex);
 
+        var needAppend = true;
         var vars = query.split('&');
         for (var i = 0; i < vars.length; i++) {
             var pair = vars[i].split('=');
@@ -60,7 +74,12 @@ UrlEditor.setUrlParame = function(url, name, value){
                 result += v;//保持原有值
             }else{//如果是目标参数
                 result += value;//修改值
+                needAppend = false;//标记为已经修改。不需要末尾填充了
             }
+        }
+
+        if(needAppend){//如果需要末尾填充
+            result += '&' + name + '=' + value;
         }
     }
     return result;
